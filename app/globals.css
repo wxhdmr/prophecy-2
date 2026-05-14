@@ -1,0 +1,296 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  min-height: 100vh;
+  background: radial-gradient(ellipse at top, #1a0533 0%, #0a0015 60%);
+  color: #e8d5b7;
+  font-family: 'Georgia', serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 20px 80px;
+}
+
+h1 {
+  font-size: 2.8rem;
+  letter-spacing: 0.18em;
+  color: #f0d080;
+  text-shadow: 0 0 30px #f0d08066;
+  margin-bottom: 6px;
+}
+.subtitle {
+  font-size: 0.95rem;
+  letter-spacing: 0.2em;
+  color: #a08060;
+  margin-bottom: 40px;
+  text-transform: uppercase;
+}
+
+/* ── Question row ── */
+.question-row {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  max-width: 540px;
+  margin-bottom: 32px;
+}
+.question-row input {
+  flex: 1;
+  background: #ffffff0f;
+  border: 1px solid #7050a055;
+  border-radius: 8px;
+  padding: 12px 16px;
+  color: #e8d5b7;
+  font-family: inherit;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.question-row input::placeholder { color: #7060a0; }
+.question-row input:focus { border-color: #c090f0; }
+
+/* ── Grid controls ── */
+.grid-controls {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+  max-width: 860px;
+  margin-bottom: 14px;
+}
+.grid-hint {
+  flex: 1;
+  font-size: 0.8rem;
+  letter-spacing: 0.15em;
+  color: #7060a0;
+  text-transform: uppercase;
+}
+.btn-shuffle {
+  background: transparent;
+  border: 1px solid #7050a055;
+  border-radius: 8px;
+  color: #a090c0;
+  font-family: inherit;
+  font-size: 0.82rem;
+  letter-spacing: 0.1em;
+  padding: 8px 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.btn-shuffle:hover { border-color: #9060d0; color: #c8b0f0; box-shadow: 0 0 12px #9060d033; }
+
+/* ── Card grid ── */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(13, 1fr);
+  gap: 5px;
+  max-width: 860px;
+  width: 100%;
+}
+
+.grid-card {
+  aspect-ratio: 3 / 5;
+  border-radius: 5px;
+  border: 1px solid #7050a044;
+  background: linear-gradient(135deg, #1a0533, #2a1050);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  color: #50408066;
+  cursor: pointer;
+  transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s, opacity 0.3s;
+  user-select: none;
+  position: relative;
+}
+.card-grid:not(.locked) .grid-card:hover {
+  transform: translateY(-5px) scale(1.1);
+  border-color: #c090f0;
+  box-shadow: 0 0 16px #9060d077;
+  color: #9070c0;
+  z-index: 10;
+}
+.grid-card.selected {
+  border-color: #f0d080;
+  box-shadow: 0 0 22px #f0d08077;
+  color: #f0d080;
+  transform: translateY(-4px) scale(1.08);
+  z-index: 10;
+}
+.grid-card.dimmed {
+  opacity: 0.18;
+  cursor: default;
+}
+
+/* ── Overlay ── */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 0, 15, 0.88);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s;
+}
+.overlay.visible {
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* ── Modal ── */
+.modal {
+  position: relative;
+  display: flex;
+  gap: 36px;
+  align-items: flex-start;
+  max-width: 740px;
+  width: 100%;
+  max-height: 90vh;
+  padding: 48px 40px 40px;
+  background: linear-gradient(135deg, #120328 0%, #1e0840 100%);
+  border: 1px solid #7050a055;
+  border-radius: 16px;
+  box-shadow: 0 0 80px #9060d022, 0 8px 60px #00000088;
+  overflow-y: auto;
+}
+
+.btn-close {
+  position: absolute;
+  top: 14px;
+  right: 18px;
+  background: transparent;
+  border: none;
+  color: #7060a0;
+  font-size: 1.3rem;
+  cursor: pointer;
+  padding: 4px 8px;
+  line-height: 1;
+  transition: color 0.2s;
+  font-family: inherit;
+}
+.btn-close:hover { color: #c090f0; }
+
+/* ── Card flip ── */
+.card-scene {
+  width: 200px;
+  height: 340px;
+  perspective: 900px;
+  flex-shrink: 0;
+}
+
+.card-flip {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.card-flip.flipped { transform: rotateY(180deg); }
+
+.card-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #7050a066;
+  box-shadow: 0 8px 40px #00000088;
+}
+.card-back {
+  background: linear-gradient(135deg, #1a0533, #2a1050);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3.5rem;
+}
+.card-front {
+  transform: rotateY(180deg);
+  background: #0a0015;
+}
+.card-front img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* ── Info panel ── */
+.modal-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-top: 4px;
+}
+
+.card-name {
+  font-size: 1.5rem;
+  color: #f0d080;
+  letter-spacing: 0.08em;
+  margin-bottom: 4px;
+}
+.orientation {
+  font-size: 0.78rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.orientation.upright { color: #80d0a0; }
+.orientation.reversed { color: #d07080; }
+
+.keywords {
+  font-size: 0.82rem;
+  color: #a090c0;
+  letter-spacing: 0.1em;
+  margin-bottom: 14px;
+}
+.meaning {
+  font-size: 0.92rem;
+  line-height: 1.7;
+  color: #c8b898;
+  border-top: 1px solid #7050a033;
+  padding-top: 14px;
+}
+
+/* ── Fortune ── */
+.fortune-box {
+  background: #ffffff07;
+  border: 1px solid #7050a033;
+  border-radius: 10px;
+  padding: 18px 22px;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.5s, transform 0.5s;
+}
+.fortune-box.visible { opacity: 1; transform: translateY(0); }
+
+.fortune-label {
+  font-size: 0.72rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: #a08060;
+  margin-bottom: 10px;
+}
+.fortune-text {
+  font-size: 0.95rem;
+  line-height: 1.8;
+  color: #d8c8a8;
+  white-space: pre-wrap;
+}
+.fortune-text.loading::after {
+  content: '▋';
+  animation: blink 0.8s step-end infinite;
+}
+@keyframes blink { 50% { opacity: 0; } }
+
+.error { color: #d07080; font-size: 0.88rem; margin-top: 16px; }
+
+@media (max-width: 560px) {
+  .modal { flex-direction: column; align-items: center; padding: 48px 24px 32px; gap: 24px; }
+}
