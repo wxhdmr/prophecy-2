@@ -22,32 +22,93 @@ h1 {
   font-size: 0.95rem;
   letter-spacing: 0.2em;
   color: #a08060;
-  margin-bottom: 40px;
+  margin-bottom: 36px;
   text-transform: uppercase;
 }
 
-/* ── Question row ── */
-.question-row {
+/* ── Question page (step 1) ── */
+.question-page {
   display: flex;
-  gap: 12px;
+  flex-direction: column;
+  align-items: center;
   width: 100%;
-  max-width: 540px;
-  margin-bottom: 32px;
 }
-.question-row input {
-  flex: 1;
-  background: #ffffff0f;
+
+.question-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+  max-width: 520px;
+  background: linear-gradient(135deg, #120328 0%, #1e0840 100%);
   border: 1px solid #7050a055;
-  border-radius: 8px;
-  padding: 12px 16px;
+  border-radius: 16px;
+  padding: 40px 36px;
+  box-shadow: 0 0 60px #9060d018, 0 8px 40px #00000066;
+}
+
+.question-prompt {
+  font-size: 1.1rem;
+  color: #c8b0e8;
+  letter-spacing: 0.08em;
+  text-align: center;
+}
+
+.question-textarea {
+  width: 100%;
+  background: #ffffff0a;
+  border: 1px solid #7050a055;
+  border-radius: 10px;
+  padding: 14px 16px;
   color: #e8d5b7;
   font-family: inherit;
   font-size: 0.95rem;
+  line-height: 1.6;
+  resize: none;
   outline: none;
   transition: border-color 0.2s;
 }
-.question-row input::placeholder { color: #7060a0; }
-.question-row input:focus { border-color: #c090f0; }
+.question-textarea::placeholder { color: #7060a0; }
+.question-textarea:focus { border-color: #c090f0; }
+
+.btn-consult {
+  background: linear-gradient(135deg, #7030b0, #4010a0);
+  border: 1px solid #c090f0;
+  border-radius: 30px;
+  color: #f0e8ff;
+  font-family: inherit;
+  font-size: 0.9rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 14px 40px;
+  cursor: pointer;
+  transition: all 0.25s;
+  box-shadow: 0 0 20px #9060d044;
+}
+.btn-consult:hover {
+  background: linear-gradient(135deg, #8040c0, #5020b0);
+  box-shadow: 0 0 32px #9060d077;
+  transform: translateY(-1px);
+}
+
+/* ── Question display (step 2) ── */
+.question-display {
+  font-size: 0.88rem;
+  color: #9070b0;
+  letter-spacing: 0.05em;
+  margin-bottom: 24px;
+  max-width: 600px;
+  text-align: center;
+  font-style: italic;
+}
+.question-label {
+  color: #7050a0;
+  font-style: normal;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+}
 
 /* ── Grid controls ── */
 .grid-controls {

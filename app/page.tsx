@@ -21,13 +21,15 @@ interface SelectedCard {
 const POSITIONS_3 = ['Past', 'Present', 'Future'];
 
 export default function TarotApp() {
+  const [step, setStep] = useState<'question' | 'pick'>('question');
+  const [question, setQuestion] = useState('');
+
   const [allCards, setAllCards] = useState<Card[]>([]);
   const [shuffledCards, setShuffledCards] = useState<Card[]>([]);
   const [spreadMode, setSpreadMode] = useState<1 | 3>(1);
   const [selectedCards, setSelectedCards] = useState<SelectedCard[]>([]);
   const [gridHint, setGridHint] = useState('The cards await. Choose one.');
   const [error, setError] = useState('');
-  const questionRef = useRef<HTMLInputElement>(null);
 
   // Overlay / reading state
   const [overlayVisible, setOverlayVisible] = useState(false);
@@ -36,6 +38,10 @@ export default function TarotApp() {
   const [fortuneVisible, setFortuneVisible] = useState(false);
   const [fortuneLoading, setFortuneLoading] = useState(false);
   const [fortuneText, setFortuneText] = useState('');
+
+  // Keep a ref so fortune fetch always reads the latest question
+  const questionRef = useRef(question);
+  useEffect(() => { questionRef.current = question; }, [question]);
 
   useEffect(() => {
     fetch('/api/cards')
@@ -47,7 +53,7 @@ export default function TarotApp() {
       .catch(() => setError('Could not reach the server.'));
   }, []);
 
-  // Flip sequence — triggered when overlay opens, short delay lets images load
+  // Flip sequence — triggered when overlay opens
   useEffect(() => {
     if (!overlayVisible) return;
     const t1 = setTimeout(() => setIsFlipped(true), 400);
@@ -89,11 +95,11 @@ export default function TarotApp() {
   useEffect(() => {
     if (!cardInfoVisible || selectedCards.length === 0) return;
     const controller = new AbortController();
-    const question = questionRef.current?.value.trim() ?? '';
+    const q = questionRef.current.trim();
 
     if (spreadMode === 1) {
       const { card, isReversed } = selectedCards[0];
-      getFortune({ card_id: card.id, orientation: isReversed ? 'reversed' : 'upright', question }, controller.signal);
+      getFortune({ card_id: card.id, orientation: isReversed ? 'reversed' : 'upright', question: q }, controller.signal);
     } else {
       getFortune({
         cards: selectedCards.map(sc => ({
@@ -101,7 +107,7 @@ export default function TarotApp() {
           orientation: sc.isReversed ? 'reversed' : 'upright',
           position: sc.position,
         })),
-        question,
+        question: q,
       }, controller.signal);
     }
     return () => controller.abort();
@@ -123,6 +129,11 @@ export default function TarotApp() {
     setError('');
   }, []);
 
+  const submitQuestion = () => {
+    setStep('pick');
+    doRenderGrid(allCards, spreadMode);
+  };
+
   const changeSpreadMode = (mode: 1 | 3) => {
     setSpreadMode(mode);
     setOverlayVisible(false);
@@ -133,7 +144,10 @@ export default function TarotApp() {
   const closeModal = () => {
     setOverlayVisible(false);
     resetReading();
-    doRenderGrid(allCards, spreadMode);
+    // Return to question step for a fresh reading
+    setStep('question');
+    setQuestion('');
+    setSpreadMode(1);
   };
 
   const shuffle = () => {
@@ -162,18 +176,44 @@ export default function TarotApp() {
 
   const hasSelected = selectedCards.length >= spreadMode;
 
+  /* ── Step 1: Question ── */
+  if (step === 'question') {
+    return (
+      <div className="question-page">
+        <h1>✦ PROPHECY ✦</h1>
+        <p className="subtitle">Tarot Oracle</p>
+
+        <div className="question-card">
+          <p className="question-prompt">What do the cards hold for you?</p>
+          <textarea
+            className="question-textarea"
+            value={question}
+            onChange={e => setQuestion(e.target.value)}
+            placeholder="Ask a question, or leave blank for a general reading…"
+            rows={3}
+            onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submitQuestion(); } }}
+          />
+          <button className="btn-consult" onClick={submitQuestion}>
+            Consult the Oracle
+          </button>
+        </div>
+
+        {error && <p className="error">{error}</p>}
+      </div>
+    );
+  }
+
+  /* ── Step 2: Card pick ── */
   return (
     <>
       <h1>✦ PROPHECY ✦</h1>
       <p className="subtitle">Tarot Oracle</p>
 
-      <div className="question-row">
-        <input
-          ref={questionRef}
-          type="text"
-          placeholder="Ask a question, or leave blank for a general reading…"
-        />
-      </div>
+      {question && (
+        <p className="question-display">
+          <span className="question-label">Your question:</span> {question}
+        </p>
+      )}
 
       <div className="spread-toggle">
         <button
@@ -289,7 +329,6 @@ export default function TarotApp() {
                       </div>
                     </div>
                   )}
-                  {/* suppress unused var warning */}
                   {idx >= 0 && null}
                 </div>
               ))}
