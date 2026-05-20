@@ -31,7 +31,6 @@ export default function TarotApp() {
 
   // Overlay / reading state
   const [overlayVisible, setOverlayVisible] = useState(false);
-  const [imagesLoaded, setImagesLoaded] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const [cardInfoVisible, setCardInfoVisible] = useState(false);
   const [fortuneVisible, setFortuneVisible] = useState(false);
@@ -48,13 +47,13 @@ export default function TarotApp() {
       .catch(() => setError('Could not reach the server.'));
   }, []);
 
-  // Flip sequence — fires once all required images are loaded
+  // Flip sequence — triggered when overlay opens, short delay lets images load
   useEffect(() => {
-    if (imagesLoaded < spreadMode) return;
-    const t1 = setTimeout(() => setIsFlipped(true), 300);
-    const t2 = setTimeout(() => setCardInfoVisible(true), 300 + 700 + 400);
+    if (!overlayVisible) return;
+    const t1 = setTimeout(() => setIsFlipped(true), 400);
+    const t2 = setTimeout(() => setCardInfoVisible(true), 400 + 700 + 400);
     return () => { clearTimeout(t1); clearTimeout(t2); };
-  }, [imagesLoaded, spreadMode]);
+  }, [overlayVisible]);
 
   const getFortune = useCallback(async (body: Record<string, unknown>, signal: AbortSignal) => {
     setFortuneText('');
@@ -110,7 +109,6 @@ export default function TarotApp() {
   }, [cardInfoVisible]);
 
   const resetReading = () => {
-    setImagesLoaded(0);
     setIsFlipped(false);
     setCardInfoVisible(false);
     setFortuneVisible(false);
@@ -236,8 +234,6 @@ export default function TarotApp() {
                       src={`/cards/${selectedCards[0].card.id}.png`}
                       alt={selectedCards[0].card.name}
                       style={selectedCards[0].isReversed ? { transform: 'rotate(180deg)' } : undefined}
-                      onLoad={() => setImagesLoaded(1)}
-                      onError={() => setImagesLoaded(1)}
                     />
                   )}
                 </div>
@@ -281,8 +277,6 @@ export default function TarotApp() {
                           src={`/cards/${sc.card.id}.png`}
                           alt={sc.card.name}
                           style={sc.isReversed ? { transform: 'rotate(180deg)' } : undefined}
-                          onLoad={() => setImagesLoaded(prev => prev + 1)}
-                          onError={() => setImagesLoaded(prev => prev + 1)}
                         />
                       </div>
                     </div>
