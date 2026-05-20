@@ -1,6 +1,8 @@
 import Anthropic from '@anthropic-ai/sdk';
 import cardsData from '@/lib/tarot_cards.json';
 
+export const maxDuration = 60;
+
 const client = new Anthropic();
 
 const ORACLE_SYSTEM_PROMPT = `You are a mystical tarot oracle with deep wisdom drawn from centuries of esoteric tradition. \
